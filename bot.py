@@ -12,7 +12,6 @@ from discord.ext import commands, tasks
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
-CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
 
 youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
 
@@ -20,12 +19,14 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.reactions = True
 intents.messages = True
+intents.guilds = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 # File paths
 SENT_CLIPS_FILE = "sent_clips.json"
 BLOCKED_CLIPS_FILE = "blocked_clips.json"
 FAVORITE_CLIPS_FILE = "favorite_clips.json"
+CHANNEL_MAP_FILE = "channel_map.json"
 
 # Load JSON Data
 def load_json(file, default_data):
@@ -53,6 +54,7 @@ def load_search_queries(file_path="search_queries.txt"):
 sent_clips = load_json(SENT_CLIPS_FILE, {"sent": []})
 blocked_clips = load_json(BLOCKED_CLIPS_FILE, {"blocked": []})
 favorite_clips = load_json(FAVORITE_CLIPS_FILE, {})
+channel_map = load_json(CHANNEL_MAP_FILE, {})
 
 # YouTube Query List from file
 SEARCH_QUERIES = load_search_queries()
@@ -133,17 +135,19 @@ def get_random_daredevil_clip():
 #Send the clip every 24 hours
 @tasks.loop(hours=24)
 async def daily_daredevil_clip():
-    channel = bot.get_channel(CHANNEL_ID)
-    if channel:
-        video_url = get_random_daredevil_clip()
-        if not video_url:
-            await channel.send("❌ Couldn't fetch a valid Daredevil clip today.")
-            return
-        message = await channel.send(f"**Daily Daredevil Clip:** {video_url}\nReact with 🌟 to favorite, ❌ to block from being shown again!")
-        await message.add_reaction("🌟")
-        await message.add_reaction("❌")
+    for guild_id, channel_id in channel_map.items():
+        channel = bot.get_channel(channel_id)
+        if channel:
+            video_url = get_random_daredevil_clip()
+            if not video_url:
+                await channel.send("❌ Couldn't fetch a valid Daredevil clip today.")
+                return
+            message = await channel.send(f"**Daily Daredevil Clip:** {video_url}\nReact with 🌟 to favorite, ❌ to block from being shown again!")
+            await message.add_reaction("🌟")
+            await message.add_reaction("❌")
 
-#Handle user reactions
+
+# === Bot Events === #
 @bot.event
 async def on_reaction_add(reaction, user):
     if user.bot:
@@ -183,8 +187,26 @@ async def on_reaction_add(reaction, user):
         await message.delete()
         await message.channel.send(f"🚫 {user.mention} blocked this clip from being shown again!")
 
-# Manual Fetching Clip
+# when bot joins server
+@bot.event
+async def on_guild_join(guild):
+    owner = guild.owner
+    if owner:
+        try:
+            await owner.send(f"👋 Thanks for adding me to **{guild.name}**! Use `!setchannel` in your desired text channel to receive daily Daredevil clips.")
+        except:
+            pass
 
+# set channel for clips
+@bot.command()
+@commands.has_permissions(manage_guild=True)
+async def setchannel(ctx):
+    guild_id = str(ctx.guild.id)
+    channel_map[guild_id] = ctx.channel.id
+    save_json(CHANNEL_MAP_FILE, channel_map)
+    await ctx.send(f"✅ This channel has been set to receive daily Daredevil clips!")
+
+# Manual Fetching Clip
 # Get random clip with !daredevil
 @bot.command()
 async def daredevil(ctx):
