@@ -52,7 +52,7 @@ This bot sends a random Daredevil YouTube clip to a Discord channel every 24 hou
 1. Go to the [Discord Developer Portal](https://discord.com/developers/applications).
 2. Select your bot application.
 3. Under "OAuth2" > "URL Generator", select `bot` as the scope.
-4. Under "Bot" > bot permissions select `Send Messages`, `Add Reactions`, `Read Message History`,`Manage Messages`.
+4. Under "bot permissions" > select `Send Messages`, `Add Reactions`, `Read Message History`,`Manage Messages`,`Embed Links`.
 5. Copy the generated URL and use it to invite the bot to your server.
 
 ### Step 5: Interact with the Bot
