@@ -194,8 +194,8 @@ async def on_guild_join(guild):
     if owner:
         try:
             await owner.send(f"👋 Thanks for adding me to **{guild.name}**! Use `!setchannel` in your desired text channel to receive daily Daredevil clips.")
-        except:
-            pass
+        except Exception as e:
+            print(f"Failed to DM {owner}: {e}")
 
 # set channel for clips
 @bot.command()
@@ -205,6 +205,15 @@ async def setchannel(ctx):
     channel_map[guild_id] = ctx.channel.id
     save_json(CHANNEL_MAP_FILE, channel_map)
     await ctx.send(f"✅ This channel has been set to receive daily Daredevil clips!")
+
+    # Send an initial Daredevil clip
+    video_url = get_random_daredevil_clip()
+    if video_url:
+        message = await ctx.send(f"**Daily Daredevil Clip:** {video_url}\nReact with 🌟 to favorite, ❌ to block from being shown again!")
+        await message.add_reaction("🌟")
+        await message.add_reaction("❌")
+    else:
+        await ctx.send("❌ Couldn't find a valid clip.")
 
 # Manual Fetching Clip
 # Get random clip with !daredevil

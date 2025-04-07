@@ -1,24 +1,3 @@
 {
-    "sent": [
-        {
-            "video_id": "C5NK89dMIiw",
-            "timestamp": "2025-04-04T15:56:29.911849"
-        },
-        {
-            "video_id": "0P78vNUEKYM",
-            "timestamp": "2025-04-04T15:56:51.021995"
-        },
-        {
-            "video_id": "Se9-94B7KvA",
-            "timestamp": "2025-04-04T16:16:10.988189"
-        },
-        {
-            "video_id": "skXVglBCggg",
-            "timestamp": "2025-04-06T18:00:12.939793"
-        },
-        {
-            "video_id": "YnNB7DKnrMg",
-            "timestamp": "2025-04-06T18:00:32.270067"
-        }
-    ]
+    "sent": []
 }
