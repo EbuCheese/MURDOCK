@@ -2,6 +2,8 @@
 
 This bot sends a random Daredevil YouTube clip to a Discord channel every 24 hours. Users can interact with the clips by saving or blocking them.
 
+note: By changing the search_queries you can allow this bot to fetch any kind of clip from youtube.
+
 ## Features
 - Sends random Daredevil clips every 24 hours.
 - Users can react with 🌟 to favorite or ❌ to block clips.
